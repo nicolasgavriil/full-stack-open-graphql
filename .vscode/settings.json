@@ -1,0 +1,12 @@
+{
+  "terminal.integrated.profiles.linux": {
+    "Backend": {
+      "path": "/bin/bash",
+      "args": ["-c", "cd library-backend && exec bash"]
+    },
+    "Frontend": {
+      "path": "/bin/bash",
+      "args": ["-c", "cd library-frontend && exec bash"]
+    }
+  }
+}
