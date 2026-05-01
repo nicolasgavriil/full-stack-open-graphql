@@ -12,12 +12,13 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      const authorExists = await Author.findOne({ name: args.author });
-      if (!authorExists) return null;
-      const authorId = authorExists.id;
-
       const filter = {};
-      if (args.author) filter.author = authorId;
+
+      if (args.author) {
+        const authorExists = await Author.findOne({ name: args.author });
+        if (!authorExists) return [];
+        filter.author = authorExists.id;
+      }
       if (args.genre) filter.genres = args.genre;
 
       return Book.find(filter).populate("author");
@@ -128,6 +129,15 @@ const resolvers = {
       authorToEdit.born = args.setBornTo;
 
       return authorToEdit.save();
+    },
+    _resetDatabase: async () => {
+      if (process.env.NODE_ENV !== "test") {
+        throw new GraphQLError("_resetDatabase is only available in test mode");
+      }
+      await Author.deleteMany({});
+      await Book.deleteMany({});
+      await User.deleteMany({});
+      return true;
     },
   },
 };
