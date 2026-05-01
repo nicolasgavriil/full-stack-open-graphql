@@ -1,3 +1,4 @@
+const { GraphQLError } = require("graphql");
 const Author = require("../models/Author.js");
 const Book = require("../models/Book.js");
 
@@ -31,16 +32,36 @@ const resolvers = {
       const authorExists = await Author.findOne({ name: args.author });
       let authorId;
       if (!authorExists) {
-        const newAuthor = new Author({ name: args.author });
-        const savedAuthor = await newAuthor.save();
-        authorId = savedAuthor.id;
+        try {
+          const newAuthor = new Author({ name: args.author });
+          const savedAuthor = await newAuthor.save();
+          authorId = savedAuthor.id;
+        } catch (err) {
+          throw new GraphQLError(`Saving new author failed: ${err.message}`, {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              invalidArgs: args.author,
+              err,
+            },
+          });
+        }
       } else {
         authorId = authorExists.id;
       }
 
-      const book = new Book({ ...args, author: authorId });
-      const savedBook = await book.save();
-      return savedBook.populate("author");
+      try {
+        const book = new Book({ ...args, author: authorId });
+        const savedBook = await book.save();
+        return savedBook.populate("author");
+      } catch (err) {
+        throw new GraphQLError(`Saving new book failed: ${err.message}`, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args,
+            err,
+          },
+        });
+      }
     },
     editAuthor: async (root, args) => {
       const authorToEdit = await Author.findOne({ name: args.name });
