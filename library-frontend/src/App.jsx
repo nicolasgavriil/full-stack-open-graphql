@@ -4,8 +4,13 @@ import { ALL_AUTHORS } from "./queries.js";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
+import LoginForm from "./components/LoginForm";
+import Logout from "./components/Logout";
 
 const App = () => {
+  const [token, setToken] = useState(
+    localStorage.getItem("graphql-user-token"),
+  );
   const [page, setPage] = useState("authors");
   const result = useQuery(ALL_AUTHORS);
 
@@ -14,7 +19,14 @@ const App = () => {
       <div>
         <button onClick={() => setPage("authors")}>authors</button>
         <button onClick={() => setPage("books")}>books</button>
-        <button onClick={() => setPage("add")}>add book</button>
+        {token ? (
+          <>
+            <button onClick={() => setPage("add")}>add book</button>
+            <button onClick={() => setPage("logout")}>logout</button>
+          </>
+        ) : (
+          <button onClick={() => setPage("login")}>login</button>
+        )}
       </div>
 
       {!result.loading && (
@@ -22,8 +34,9 @@ const App = () => {
       )}
 
       <Books show={page === "books"} />
-
       <NewBook show={page === "add"} />
+      <LoginForm show={page === "login"} setToken={setToken} />
+      <Logout show={page === "logout"} setToken={setToken} />
     </div>
   );
 };
