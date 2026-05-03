@@ -7,6 +7,7 @@ const Books = ({ show }) => {
   const booksResult = useQuery(ALL_BOOKS);
   const filteredResult = useQuery(ALL_BOOKS, {
     variables: { genre: filter },
+    fetchPolicy: "cache-and-network",
   });
 
   if (!show) return null;
