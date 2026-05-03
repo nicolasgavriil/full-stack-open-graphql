@@ -18,7 +18,7 @@ const typeDefs = /* GraphQL */ `
 
   type Book {
     title: String!
-    published: Int
+    published: Int!
     author: Author!
     id: ID!
     genres: [String!]!
