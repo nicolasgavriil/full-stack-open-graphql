@@ -3,19 +3,23 @@ import { useState } from "react";
 import { ALL_BOOKS, USER_DATA } from "../queries.js";
 
 const Recommend = ({ show }) => {
-  const resultBooks = useQuery(ALL_BOOKS);
-  const resultUser = useQuery(USER_DATA);
+  const booksResult = useQuery(ALL_BOOKS);
+  const userResult = useQuery(USER_DATA);
+  const user = userResult?.data?.me;
+  const filter = user?.favoriteGenre;
+  const filteredResult = useQuery(ALL_BOOKS, {
+    variables: { genre: filter },
+  });
 
   if (!show) return null;
 
-  if (resultBooks.loading || resultUser.loading) return null;
+  if (booksResult.loading) return null;
 
-  const books = resultBooks.data.allBooks;
-  const user = resultUser.data.me;
+  const books = booksResult.data.allBooks;
 
-  if (!books || !user) return null;
+  if (!books) return null;
 
-  const filter = user.favoriteGenre;
+  const filteredBooks = filteredResult.data.allBooks;
 
   return (
     <div>
@@ -30,15 +34,13 @@ const Recommend = ({ show }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books
-            .filter((b) => (filter ? b.genres.includes(filter) : true))
-            .map((a) => (
-              <tr key={a.id}>
-                <td>{a.title}</td>
-                <td>{a.author.name}</td>
-                <td>{a.published}</td>
-              </tr>
-            ))}
+          {filteredBooks.map((a) => (
+            <tr key={a.id}>
+              <td>{a.title}</td>
+              <td>{a.author.name}</td>
+              <td>{a.published}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

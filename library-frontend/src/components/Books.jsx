@@ -4,15 +4,19 @@ import { ALL_BOOKS } from "../queries.js";
 
 const Books = ({ show }) => {
   const [filter, setFilter] = useState();
-  const result = useQuery(ALL_BOOKS);
+  const booksResult = useQuery(ALL_BOOKS);
+  const filteredResult = useQuery(ALL_BOOKS, {
+    variables: { genre: filter },
+  });
 
   if (!show) return null;
 
-  if (result.loading) return null;
+  if (booksResult.loading || filteredResult.loading) return null;
 
-  const books = result.data.allBooks;
+  const books = booksResult.data.allBooks;
+  const filteredBooks = filteredResult.data.allBooks;
 
-  if (!books) return null;
+  if (!books || !filteredBooks) return null;
 
   const genres = new Set();
   for (const book of books) {
@@ -32,15 +36,13 @@ const Books = ({ show }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books
-            .filter((b) => (filter ? b.genres.includes(filter) : true))
-            .map((a) => (
-              <tr key={a.id}>
-                <td>{a.title}</td>
-                <td>{a.author.name}</td>
-                <td>{a.published}</td>
-              </tr>
-            ))}
+          {filteredBooks.map((a) => (
+            <tr key={a.id}>
+              <td>{a.title}</td>
+              <td>{a.author.name}</td>
+              <td>{a.published}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <button type="button" onClick={() => setFilter(null)}>
