@@ -4,6 +4,7 @@ import { ALL_AUTHORS } from "./queries.js";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
+import Recommend from "./components/Recommend.jsx";
 import LoginForm from "./components/LoginForm";
 import Logout from "./components/Logout";
 
@@ -22,6 +23,7 @@ const App = () => {
         {token ? (
           <>
             <button onClick={() => setPage("add")}>add book</button>
+            <button onClick={() => setPage("recommend")}>recommend</button>
             <button onClick={() => setPage("logout")}>logout</button>
           </>
         ) : (
@@ -35,6 +37,7 @@ const App = () => {
 
       <Books show={page === "books"} />
       <NewBook show={page === "add"} />
+      <Recommend show={page === "recommend"} />
       <LoginForm show={page === "login"} setToken={setToken} />
       <Logout show={page === "logout"} setToken={setToken} />
     </div>

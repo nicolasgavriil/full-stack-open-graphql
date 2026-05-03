@@ -33,7 +33,7 @@ const Books = ({ show }) => {
             <th>published</th>
           </tr>
           {books
-            .filter((b) => b.genres.includes(filter))
+            .filter((b) => (filter ? b.genres.includes(filter) : true))
             .map((a) => (
               <tr key={a.id}>
                 <td>{a.title}</td>
@@ -43,6 +43,9 @@ const Books = ({ show }) => {
             ))}
         </tbody>
       </table>
+      <button type="button" onClick={() => setFilter(null)}>
+        all genres
+      </button>
       {[...genres].sort().map((g) => (
         <button key={g} type="button" onClick={() => setFilter(g)}>
           {g}
