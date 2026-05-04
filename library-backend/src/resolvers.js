@@ -26,13 +26,21 @@ const resolvers = {
 
       return Book.find(filter).populate("author");
     },
-    allAuthors: async () => Author.find({}),
-  },
 
-  Author: {
-    bookCount: async (root) => {
-      const books = await Book.find({ author: root.id });
-      return books.length;
+    allAuthors: async () => {
+      const authors = await Author.find({});
+
+      const books = await Book.find({});
+      const countByAuthor = books.reduce((acc, book) => {
+        acc[book.author.toString()] = (acc[book.author.toString()] || 0) + 1;
+        return acc;
+      }, {});
+
+      return authors.map((author) => ({
+        ...author.toObject(),
+        id: author.id,
+        bookCount: countByAuthor[author.id] || 0,
+      }));
     },
   },
 
