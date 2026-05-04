@@ -1,8 +1,11 @@
 const jwt = require("jsonwebtoken");
 const { GraphQLError } = require("graphql");
+const { PubSub } = require("graphql-subscriptions");
 const User = require("../models/User.js");
 const Author = require("../models/Author.js");
 const Book = require("../models/Book.js");
+
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -103,7 +106,11 @@ const resolvers = {
       try {
         const book = new Book({ ...args, author: authorId });
         const savedBook = await book.save();
-        return savedBook.populate("author");
+        const populatedBook = await savedBook.populate("author");
+
+        pubsub.publish("BOOK_ADDED", { bookAdded: populatedBook });
+
+        return populatedBook;
       } catch (err) {
         throw new GraphQLError(`Saving new book failed: ${err.message}`, {
           extensions: {
@@ -138,6 +145,11 @@ const resolvers = {
       await Book.deleteMany({});
       await User.deleteMany({});
       return true;
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator("BOOK_ADDED"),
     },
   },
 };
