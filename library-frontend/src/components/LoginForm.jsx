@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
-import { LOGIN } from "../queries";
+import { LOGIN, USER_DATA } from "../queries";
 
-const LoginForm = ({ show, setError, setToken }) => {
+const LoginForm = ({ show, setPage, setError, setToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [login] = useMutation(LOGIN, {
     onCompleted: (data) => {
       const token = data.login.value;
+
       setToken(token);
       localStorage.setItem("graphql-user-token", token);
+
+      setPage("books");
     },
     onError: (err) => {
-      console.log(err);
-      setError(err.message);
+      setError(`Login failed: ${err.message}`);
     },
   });
 
@@ -29,15 +31,17 @@ const LoginForm = ({ show, setError, setToken }) => {
     <div>
       <form onSubmit={submit}>
         <div>
-          username{" "}
+          <label htmlFor="username">username</label>
           <input
+            id="username"
             value={username}
             onChange={({ target }) => setUsername(target.value)}
           />
         </div>
         <div>
-          password{" "}
+          <label htmlFor="password">password</label>
           <input
+            id="password"
             type="password"
             value={password}
             onChange={({ target }) => setPassword(target.value)}
