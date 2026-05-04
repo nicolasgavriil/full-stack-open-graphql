@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@apollo/client/react";
-import { ALL_AUTHORS } from "./queries.js";
+import { useQuery, useSubscription } from "@apollo/client/react";
+import { ALL_AUTHORS, BOOK_ADDED } from "./queries.js";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
@@ -23,6 +23,14 @@ const App = () => {
       setErrorMessage(null);
     }, 10000);
   };
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      console.log("bookAdded:", data);
+      const addedBook = data.data.bookAdded;
+      window.alert(`${addedBook.title} added`);
+    },
+  });
 
   return (
     <div>
